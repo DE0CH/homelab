@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pingshan-hk-train
+  labels:
+    app: pingshan-hk-train
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pingshan-hk-train
+  template:
+    metadata:
+      labels:
+        app: pingshan-hk-train
+    spec:
+      containers:
+      - name: pingshan-hk-train
+        image: de0ch/pingshan-hk-train:latest
+        env:
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: pingshan-hk-train-secrets
+              key: API_KEY
+        - name: PATH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: pingshan-hk-train-secrets
+              key: PATH_TOKEN
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      # Cloudflare tunnel sidecar
+      - name: cloudflared
+        image: cloudflare/cloudflared:latest
+        args: ["tunnel", "--no-autoupdate", "run"]
+        env:
+        - name: TUNNEL_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: pingshan-hk-train-secrets
+              key: TUNNEL_TOKEN

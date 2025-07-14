@@ -1,0 +1,29 @@
+# helm repo add gabe565 https://charts.gabe565.com
+# helm repo update
+# helm install vaultwarden gabe565/vaultwarden --values <name of this file>
+
+sidecars:
+  cloudflared:
+    # Use the official cloudflared image
+    image: "cloudflare/cloudflared:latest"
+
+    # The command to run the tunnel
+    args: ["tunnel", "--no-autoupdate", "run"]
+
+    # Load the tunnel token from the Kubernetes Secret you created
+    env:
+      - name: TUNNEL_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: vaultwarden-secrets
+            key: TUNNEL_TOKEN
+
+# Persistence configuration to store your data
+persistence:
+  data:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteOnce 
+
+env:
+  ADMIN_TOKEN: "$$argon2id$$v=19$$m=19456,t=2,p=1$$dlZCNUNFVFdDekY0V280cW5NUkc2SUFCdTZaVk9CWkt6MHB4dmoyY0Y5ST0$$5iCdmE9hKtAi4XG9of6vZYOFBIV1SOV3rCL5+1Q2HkU"
