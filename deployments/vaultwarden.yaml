@@ -2,22 +2,6 @@
 # helm repo update
 # helm install vaultwarden gabe565/vaultwarden --values <name of this file>
 
-sidecars:
-  cloudflared:
-    # Use the official cloudflared image
-    image: "cloudflare/cloudflared:latest"
-
-    # The command to run the tunnel
-    args: ["tunnel", "--no-autoupdate", "run"]
-
-    # Load the tunnel token from the Kubernetes Secret you created
-    env:
-      - name: TUNNEL_TOKEN
-        valueFrom:
-          secretKeyRef:
-            name: vaultwarden-secrets
-            key: TUNNEL_TOKEN
-
 # Persistence configuration to store your data
 persistence:
   data:

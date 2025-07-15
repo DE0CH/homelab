@@ -40,13 +40,3 @@ spec:
             port: 8000
           initialDelaySeconds: 5
           periodSeconds: 5
-      # Cloudflare tunnel sidecar
-      - name: cloudflared
-        image: cloudflare/cloudflared:latest
-        args: ["tunnel", "--no-autoupdate", "run"]
-        env:
-        - name: TUNNEL_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: pingshan-hk-train-secrets
-              key: TUNNEL_TOKEN
