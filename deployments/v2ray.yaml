@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: v2ray
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: v2ray
+  template:
+    metadata:
+      labels:
+        app: v2ray
+    spec:
+      volumes:
+        - name: config-template
+          configMap:
+            name: v2ray-config-template
+        - name: secret-uuid
+          secret:
+            secretName: v2ray-secret
+        - name: config-final
+          emptyDir: {}
+      initContainers:
+        - name: config-generator
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              cp /template/config.template.json /config/config.json
+              sed -i "s|{{UUID}}|$(cat /secrets/UUID)|g" /config/config.json
+          volumeMounts:
+            - name: config-template
+              mountPath: /template
+            - name: secret-uuid
+              mountPath: /secrets
+            - name: config-final
+              mountPath: /config
+      containers:
+        - name: v2ray
+          image: de0ch/v2ray:latest
+          volumeMounts:
+            - name: config-final
+              mountPath: /app/config.json
+              subPath: config.json
+  
