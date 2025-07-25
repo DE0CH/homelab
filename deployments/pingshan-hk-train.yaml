@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: pingshan-hk-train
-        image: de0ch/pingshan-hk-train:latest
+        image: de0ch/pingshan-hk-train:v1
         env:
         - name: API_KEY
           valueFrom:
